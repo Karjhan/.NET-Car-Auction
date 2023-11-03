@@ -8,6 +8,20 @@ services:
       - 5432:5432
     volumes:
       - pgdata:/var/lib/postgresql/data
+
+  mongodb:
+    image: mongo
+    environment:
+      MONGO_INITDB_ROOT_USERNAME: root
+      MONGO_INITDB_ROOT_PASSWORD: password
+      MONGODB_ADVERTISED_HOSTNAME: localhost
+    expose:
+      - 27018
+    ports:
+      - 27018:27017
+    volumes:
+      - mongodata:/var/lib/mongodb/data
     
 volumes:
   pgdata: 
+  mongodata:
