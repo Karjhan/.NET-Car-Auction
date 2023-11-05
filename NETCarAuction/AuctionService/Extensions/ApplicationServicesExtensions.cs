@@ -1,6 +1,7 @@
 ﻿using AuctionService.Consumers;
 using AuctionService.Data.Contexts;
 using MassTransit;
+using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.EntityFrameworkCore;
 
 namespace AuctionService.Extensions;
@@ -32,6 +33,14 @@ public static class ApplicationServicesExtensions
         services.AddDbContext<AuctionDBContext>(options =>
         {
             options.UseNpgsql(configuration.GetConnectionString("DefaultConnection"));
+        });
+        // Add authentication with jwt token
+        services.AddAuthentication(JwtBearerDefaults.AuthenticationScheme).AddJwtBearer(options =>
+        {
+            options.Authority = configuration["IdentityServiceURL"];
+            options.RequireHttpsMetadata = false;
+            options.TokenValidationParameters.ValidateAudience = false;
+            options.TokenValidationParameters.NameClaimType = "username";
         });
         
         return services;

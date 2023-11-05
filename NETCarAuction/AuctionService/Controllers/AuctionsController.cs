@@ -5,6 +5,7 @@ using AutoMapper;
 using AutoMapper.QueryableExtensions;
 using Contracts;
 using MassTransit;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
 
@@ -48,13 +49,13 @@ public class AuctionsController : BaseAPIController
         return _mapper.Map<AuctionDTO>(auction);
     }
 
+    [Authorize]
     [HttpPost]
     public async Task<ActionResult<AuctionDTO>> CreateAuction([FromBody] CreateAuctionDTO auctionDto)
     {
         var auction = _mapper.Map<Auction>(auctionDto);
         
-        // future: add user as seller
-        auction.Seller = "test";
+        auction.Seller = User.Identity.Name;
         
         _context.Auctions.Add(auction);
         var newAuction = _mapper.Map<AuctionDTO>(auction);
@@ -75,8 +76,11 @@ public class AuctionsController : BaseAPIController
         {
             return NotFound();
         }
-        
-        // future: check seller == username
+
+        if (auction.Seller != User.Identity.Name)
+        {
+            return Forbid();
+        }
 
         auction.Item.Make = updateAuctionDto.Make ?? auction.Item.Make;
         auction.Item.Model = updateAuctionDto.Model ?? auction.Item.Model;
@@ -101,7 +105,10 @@ public class AuctionsController : BaseAPIController
             return NotFound();
         }
         
-        // future: check seller == username
+        if (auction.Seller != User.Identity.Name)
+        {
+            return Forbid();
+        }
         
         _context.Auctions.Remove(auction);
         await _publishEndpoint.Publish<AuctionDeleted>(new { Id = auction.Id.ToString() });

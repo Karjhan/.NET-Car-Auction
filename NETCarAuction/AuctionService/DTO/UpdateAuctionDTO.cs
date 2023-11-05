@@ -18,7 +18,6 @@ public class UpdateAuctionDTO
 
     [Required]
     public int? Mileage { get; set; }
-
-    [Required]
+    
     public string? ImageURL { get; set; }
 }

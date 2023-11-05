@@ -13,6 +13,8 @@ var app = builder.Build();
 // Configure HTTP pipeline
 app.UseSwaggerDocumentation();
 
+app.UseAuthentication();
+
 app.UseAuthorization();
 
 app.MapControllers();
