@@ -26,6 +26,11 @@ public static class ApplicationServicesExtensions
             config.SetEndpointNameFormatter(new KebabCaseEndpointNameFormatter("auction", false));
             config.UsingRabbitMq((context, cfg) =>
             {
+                cfg.Host(configuration["RabbitMQ:Host"], "/", host =>
+                {
+                    host.Username(configuration.GetValue("RabbitMQ:Username", "guest"));
+                    host.Password(configuration.GetValue("RabbitMQ:Password", "guest"));
+                });
                 cfg.ConfigureEndpoints(context);
             });
         });

@@ -4,6 +4,8 @@ services:
     environment:
       POSTGRES_PASSWORD: password
       POSTGRES_USER: postgres
+    expose:
+      - 5432
     ports:
       - 5432:5432
     volumes:
@@ -14,7 +16,6 @@ services:
     environment:
       MONGO_INITDB_ROOT_USERNAME: root
       MONGO_INITDB_ROOT_PASSWORD: password
-      MONGODB_ADVERTISED_HOSTNAME: localhost
     expose:
       - 27018
     ports:
@@ -27,6 +28,65 @@ services:
     ports:
       - 5672:5672
       - 15672:15672
+
+  auction-svc:
+    image: karjhan/auction-svc:latest
+    build:
+      context: .
+      dockerfile: /AuctionService/Dockerfile
+    environment:
+      - ASPNETCORE_ENVIRONMENT=Development
+      - ASPNETCORE_URLS=http://+:80
+      - RabbitMQ__Host=rabbitmq
+      - ConnectionStrings__DefaultConnection=Server=postgres;Port=5432;Username=postgres;Password=password;Database=auctions;Pooling=true;
+      - IdentityServiceURL=http://identity-svc
+    ports:
+      - 7001:80
+    depends_on:
+      - rabbitmq
+      - postgres
+
+  search-svc:
+    image: karjhan/search-svc:latest
+    build:
+      context: .
+      dockerfile: /SearchService/Dockerfile
+    environment:
+      - ASPNETCORE_ENVIRONMENT=Development
+      - ASPNETCORE_URLS=http://+:80
+      - RabbitMQ__Host=rabbitmq
+      - ConnectionStrings__MongoDBConnection=mongodb://root:password@mongodb
+      - AuctionServiceURL=http://auction-svc
+    ports:
+      - 7002:80
+    depends_on:
+      - mongodb
+      - rabbitmq
+  
+  identity-svc:
+    image: karjhan/identity-svc:latest
+    build:
+      context: .
+      dockerfile: /IdentityService/Dockerfile
+    environment:
+      - ASPNETCORE_ENVIRONMENT=Docker
+      - ASPNETCORE_URLS=http://+:80
+      - ConnectionStrings__DefaultConnection=Server=postgres;Port=5432;Username=postgres;Password=password;Database=identity;Pooling=true;
+    ports:
+      - 5000:80
+    depends_on:
+      - postgres
+
+  gateway-svc:
+    image: karjhan/gateway-svc:latest
+    build:
+      context: .
+      dockerfile: /GatewayService/Dockerfile
+    environment:
+      - ASPNETCORE_ENVIRONMENT=Production
+      - ASPNETCORE_URLS=http://+:80
+    ports:
+      - 6001:80
     
 volumes:
   pgdata: 

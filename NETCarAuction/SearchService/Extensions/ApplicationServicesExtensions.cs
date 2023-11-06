@@ -22,6 +22,11 @@ public static class ApplicationServicesExtensions
             config.SetEndpointNameFormatter(new KebabCaseEndpointNameFormatter("search", false));
             config.UsingRabbitMq((context, cfg) =>
             {
+                cfg.Host(configuration["RabbitMQ:Host"], "/", host =>
+                {
+                    host.Username(configuration.GetValue("RabbitMQ:Username", "guest"));
+                    host.Password(configuration.GetValue("RabbitMQ:Password", "guest"));
+                });
                 cfg.ReceiveEndpoint("search-auction-created", endpoint =>
                 {
                     endpoint.UseMessageRetry(retryConfig => retryConfig.Interval(5,5));

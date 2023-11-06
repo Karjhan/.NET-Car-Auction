@@ -19,13 +19,12 @@ RUN dotnet restore  src/IdentityService/IdentityService.csproj
 # RUN dotnet restore NETCarAuction/NETCarAuction.sln
 
 # COPY THE APP FOLDERS OVER
-COPY /SearchService src/SearchService
-COPY /Contracts src/Contracts
-WORKDIR /app/src/SearchService
-RUN dotnet publish "SearchService.csproj" -c Release -o /app/src/out
+COPY /IdentityService src/IdentityService
+WORKDIR /app/src/IdentityService
+RUN dotnet publish "IdentityService.csproj" -c Release -o /app/src/out
 
 # BUILD RUNTIME IMAGE
 FROM mcr.microsoft.com/dotnet/aspnet:7.0 AS base
 WORKDIR /app
 COPY --from=build /app/src/out . 
-ENTRYPOINT [ "dotnet", "SearchService.dll" ]
+ENTRYPOINT [ "dotnet", "IdentityService.dll" ]
