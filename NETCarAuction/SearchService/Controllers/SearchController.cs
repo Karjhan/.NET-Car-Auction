@@ -20,7 +20,7 @@ public class SearchController : BaseAPIController
         switch (searchParams.OrderBy)
         {
             case("make"):
-                query.Sort(sort => sort.Ascending(item => item.Make));
+                query.Sort(sort => sort.Ascending(item => item.Make)).Sort(x => x.Ascending(item => item.Model));
                 break;
             case("new"):
                 query.Sort(sort => sort.Descending(item => item.CreatedAt));

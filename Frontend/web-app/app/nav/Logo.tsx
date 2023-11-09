@@ -11,7 +11,9 @@ export default function Logo() {
     const reset = useParamsStore(state => state.reset);
 
     function doReset() {
-        if (pathname !== '/') router.push('/');
+        if (pathname !== '/') {
+            router.push('/');
+        }
         reset();
     }
 
