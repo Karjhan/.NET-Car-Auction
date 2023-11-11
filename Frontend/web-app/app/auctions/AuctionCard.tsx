@@ -11,7 +11,7 @@ type Props = {
 
 const AuctionCard = (props: Props) => {
   return (
-      <Link href="/" className='group'>
+      <Link href={`/auctions/details/${props.auction.id}`} className='group'>
           <div className='w-full bg-gray-200 aspect-w-16 aspect-h-10 rounded-lg overflow-hidden'>
               <CarImage imageURL={props.auction.imageURL} />
               <div className='absolute top-44 left-2 w-36'>
