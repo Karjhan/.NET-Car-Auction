@@ -17,6 +17,14 @@ public static class ApplicationServicesExtensions
             options.TokenValidationParameters.ValidateAudience = false;
             options.TokenValidationParameters.NameClaimType = "username";
         });
+        // Add CORS
+        services.AddCors(options =>
+        {
+            options.AddPolicy("customPolicy", build =>
+            {
+                build.AllowAnyHeader().AllowAnyMethod().AllowCredentials().WithOrigins(configuration["ClientApp"]);
+            });
+        });
         
         return services;
     }

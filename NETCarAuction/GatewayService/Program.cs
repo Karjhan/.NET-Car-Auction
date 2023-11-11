@@ -7,6 +7,8 @@ builder.Services.AddApplicationServices(builder.Configuration);
 
 var app = builder.Build();
 
+app.UseCors();
+
 app.MapReverseProxy();
 
 app.UseAuthentication();

@@ -111,6 +111,21 @@ services:
     depends_on:
       - mongodb
       - rabbitmq
+  
+  notify-svc:
+    image: karjhan/notify-svc:latest
+    build:
+      context: .
+      dockerfile: /NotificationService/Dockerfile
+    environment:
+      - ASPNETCORE_ENVIRONMENT=Development
+      - ASPNETCORE_URLS=http://+:80
+      - RabbitMQ__Host=rabbitmq
+    ports:
+      - 7004:80
+    depends_on:
+      - rabbitmq
+
     
 volumes:
   pgdata: 

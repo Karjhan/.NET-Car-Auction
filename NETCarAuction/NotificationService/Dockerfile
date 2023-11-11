@@ -23,12 +23,13 @@ RUN dotnet restore  src/NotificationService/NotificationService.csproj
 # RUN dotnet restore NETCarAuction/NETCarAuction.sln
 
 # COPY THE APP FOLDERS OVER
-COPY /IdentityService src/IdentityService
-WORKDIR /app/src/IdentityService
-RUN dotnet publish "IdentityService.csproj" -c Release -o /app/src/out
+COPY /NotificationService src/NotificationService
+COPY /Contracts src/Contracts
+WORKDIR /app/src/NotificationService
+RUN dotnet publish "NotificationService.csproj" -c Release -o /app/src/out
 
 # BUILD RUNTIME IMAGE
 FROM mcr.microsoft.com/dotnet/aspnet:7.0 AS base
 WORKDIR /app
 COPY --from=build /app/src/out . 
-ENTRYPOINT [ "dotnet", "IdentityService.dll" ]
+ENTRYPOINT [ "dotnet", "NotificationService.dll" ]

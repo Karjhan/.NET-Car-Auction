@@ -7,6 +7,7 @@ COPY NETCarAuction.sln NETCarAuction.sln
 COPY /AuctionService/AuctionService.csproj src/AuctionService/AuctionService.csproj
 COPY /SearchService/SearchService.csproj src/SearchService/SearchService.csproj
 COPY /GatewayService/GatewayService.csproj src/GatewayService/GatewayService.csproj
+COPY /NotificationService/NotificationService.csproj src/NotificationService/NotificationService.csproj
 COPY /BidService/BidService.csproj src/BidService/BidService.csproj
 COPY /Contracts/Contracts.csproj src/Contracts/Contracts.csproj
 COPY /IdentityService/IdentityService.csproj src/IdentityService/IdentityService.csproj
@@ -18,6 +19,7 @@ RUN dotnet restore  src/GatewayService/GatewayService.csproj
 RUN dotnet restore  src/BidService/BidService.csproj
 RUN dotnet restore  src/Contracts/Contracts.csproj
 RUN dotnet restore  src/IdentityService/IdentityService.csproj
+RUN dotnet restore  src/NotificationService/NotificationService.csproj
 # RUN dotnet restore NETCarAuction/NETCarAuction.sln
 
 # COPY THE APP FOLDERS OVER
