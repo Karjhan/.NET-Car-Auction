@@ -83,7 +83,7 @@ services:
       context: .
       dockerfile: /GatewayService/Dockerfile
     environment:
-      - ASPNETCORE_ENVIRONMENT=Production
+      - ASPNETCORE_ENVIRONMENT=Docker
       - ASPNETCORE_URLS=http://+:80
     ports:
       - 6001:80
