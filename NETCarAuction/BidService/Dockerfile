@@ -21,12 +21,13 @@ RUN dotnet restore  src/IdentityService/IdentityService.csproj
 # RUN dotnet restore NETCarAuction/NETCarAuction.sln
 
 # COPY THE APP FOLDERS OVER
-COPY /GatewayService src/GatewayService
-WORKDIR /app/src/GatewayService
-RUN dotnet publish "GatewayService.csproj" -c Release -o /app/src/out
+COPY /BidService src/BidService
+COPY /Contracts src/Contracts
+WORKDIR /app/src/BidService
+RUN dotnet publish "BidService.csproj" -c Release -o /app/src/out
 
 # BUILD RUNTIME IMAGE
 FROM mcr.microsoft.com/dotnet/aspnet:7.0 AS base
 WORKDIR /app
 COPY --from=build /app/src/out . 
-ENTRYPOINT [ "dotnet", "GatewayService.dll" ]
+ENTRYPOINT [ "dotnet", "BidService.dll" ]

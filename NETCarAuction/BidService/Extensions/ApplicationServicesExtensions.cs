@@ -1,29 +1,24 @@
-﻿using AuctionService.Consumers;
-using AuctionService.Data.Contexts;
+﻿using BidService.Consumers;
+using BidService.Services;
 using MassTransit;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
-using Microsoft.EntityFrameworkCore;
 
-namespace AuctionService.Extensions;
+namespace BidService.Extensions;
 
 public static class ApplicationServicesExtensions
 {
     public static IServiceCollection AddApplicationServices(this IServiceCollection services,
         IConfiguration configuration)
     {
+        // Add Background task service
+        services.AddHostedService<CheckAuctionFinished>();
         // Add AutoMapper for object mapping
         services.AddAutoMapper(AppDomain.CurrentDomain.GetAssemblies());
         // Add MassTransit service for RabbitMQ message broker
         services.AddMassTransit(config =>
         {
-            config.AddEntityFrameworkOutbox<AuctionDBContext>(options =>
-            {
-                options.QueryDelay = TimeSpan.FromSeconds(10);
-                options.UsePostgres();
-                options.UseBusOutbox();
-            });
-            config.AddConsumersFromNamespaceContaining<AuctionCreatedFaultConsumer>();
-            config.SetEndpointNameFormatter(new KebabCaseEndpointNameFormatter("auction", false));
+            config.AddConsumersFromNamespaceContaining<AuctionCreatedConsumer>();
+            config.SetEndpointNameFormatter(new KebabCaseEndpointNameFormatter("bids", false));
             config.UsingRabbitMq((context, cfg) =>
             {
                 cfg.Host(configuration["RabbitMQ:Host"], "/", host =>
@@ -34,11 +29,6 @@ public static class ApplicationServicesExtensions
                 cfg.ConfigureEndpoints(context);
             });
         });
-        // Add entity dbContext for app, add postgreSQL connection for dbContext
-        services.AddDbContext<AuctionDBContext>(options =>
-        {
-            options.UseNpgsql(configuration.GetConnectionString("DefaultConnection"));
-        });
         // Add authentication with jwt token
         services.AddAuthentication(JwtBearerDefaults.AuthenticationScheme).AddJwtBearer(options =>
         {
@@ -47,8 +37,8 @@ public static class ApplicationServicesExtensions
             options.TokenValidationParameters.ValidateAudience = false;
             options.TokenValidationParameters.NameClaimType = "username";
         });
-        // Add GRPC auction service for service to service communication
-        services.AddGrpc();
+        // Add GRPC service for this is client 
+        services.AddScoped<GrpcAuctionClient>();
         
         return services;
     }
