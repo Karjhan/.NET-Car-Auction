@@ -9,7 +9,7 @@ import { toast } from 'react-hot-toast'
 import BidItem from './BidItem'
 import EmptyFilter from '@/app/components/EmptyFilter'
 import BidForm from './BidForm'
-import { numberWithCommas } from '@/lib/numberWithComma'
+import { numberWithCommas } from '@/app/lib/numberWithComma'
 import { getBidsForAuction } from '@/app/actions/AuctionActions'
 
 type Props = {
@@ -53,7 +53,7 @@ export default function BidList({ user, auction }: Props) {
         <div className='rounded-lg shadow-md'>
             <div className='py-2 px-4 bg-white'>
                 <div className='sticky top-0 bg-white p-2'>
-                    <Heading title={`Current high bid is $${numberWithCommas(highBid)}`} subtitle=''/>
+                    <Heading title={`Current high bid is $${numberWithCommas(highBid)}`} subtitle='' />
                 </div>
             </div>
 

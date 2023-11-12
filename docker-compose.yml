@@ -1,3 +1,9 @@
+networks:
+  custom:
+    ipam:
+      config:
+        - subnet: 10.5.0.0/16
+
 services:
   postgres:
     image: postgres
@@ -10,6 +16,8 @@ services:
       - 5432:5432
     volumes:
       - pgdata:/var/lib/postgresql/data
+    networks:
+      custom:
 
   mongodb:
     image: mongo
@@ -22,18 +30,22 @@ services:
       - 27018:27017
     volumes:
       - mongodata:/var/lib/mongodb/data
+    networks:
+      custom:
   
   rabbitmq:
     image: rabbitmq:3-management-alpine
     ports:
       - 5672:5672
       - 15672:15672
+    networks:
+      custom:
 
   auction-svc:
     image: karjhan/auction-svc:latest
     build:
       context: .
-      dockerfile: /AuctionService/Dockerfile
+      dockerfile: NETCarAuction/AuctionService/Dockerfile
     environment:
       - ASPNETCORE_ENVIRONMENT=Development
       - ASPNETCORE_URLS=http://+:80
@@ -51,12 +63,14 @@ services:
     depends_on:
       - rabbitmq
       - postgres
+    networks:
+      custom:
 
   search-svc:
     image: karjhan/search-svc:latest
     build:
       context: .
-      dockerfile: /SearchService/Dockerfile
+      dockerfile: NETCarAuction/SearchService/Dockerfile
     environment:
       - ASPNETCORE_ENVIRONMENT=Development
       - ASPNETCORE_URLS=http://+:80
@@ -68,37 +82,44 @@ services:
     depends_on:
       - mongodb
       - rabbitmq
+    networks:
+      custom:
   
   identity-svc:
     image: karjhan/identity-svc:latest
     build:
       context: .
-      dockerfile: /IdentityService/Dockerfile
+      dockerfile: NETCarAuction/IdentityService/Dockerfile
     environment:
       - ASPNETCORE_ENVIRONMENT=Docker
       - ASPNETCORE_URLS=http://+:80
+      - ClientApp=http://app.netcarauction.com
       - ConnectionStrings__DefaultConnection=Server=postgres;Port=5432;Username=postgres;Password=password;Database=identity;Pooling=true;
-    ports:
-      - 5000:80
+      - VIRTUAL_HOST=id.netcarauction.com
     depends_on:
       - postgres
+    networks:
+      custom:
+        ipv4_address: 10.5.0.200
 
   gateway-svc:
     image: karjhan/gateway-svc:latest
     build:
       context: .
-      dockerfile: /GatewayService/Dockerfile
+      dockerfile: NETCarAuction/GatewayService/Dockerfile
     environment:
       - ASPNETCORE_ENVIRONMENT=Docker
       - ASPNETCORE_URLS=http://+:80
-    ports:
-      - 6001:80
+      - VIRTUAL_HOST=api.netcarauction.com
+      - ClientApp=https://app.netcarauction.com
+    networks:
+      custom:
 
   bid-svc:
     image: karjhan/bid-svc:latest
     build:
       context: .
-      dockerfile: /BidService/Dockerfile
+      dockerfile: NETCarAuction/BidService/Dockerfile
     environment:
       - ASPNETCORE_ENVIRONMENT=Development
       - ASPNETCORE_URLS=http://+:80
@@ -111,12 +132,14 @@ services:
     depends_on:
       - mongodb
       - rabbitmq
+    networks:
+      custom:
   
   notify-svc:
     image: karjhan/notify-svc:latest
     build:
       context: .
-      dockerfile: /NotificationService/Dockerfile
+      dockerfile: NETCarAuction/NotificationService/Dockerfile
     environment:
       - ASPNETCORE_ENVIRONMENT=Development
       - ASPNETCORE_URLS=http://+:80
@@ -125,7 +148,40 @@ services:
       - 7004:80
     depends_on:
       - rabbitmq
+    networks:
+      custom:
 
+  web-app:
+    image: karjhan/web-app
+    build:
+      context: .
+      dockerfile: Frontend/web-app/Dockerfile
+    volumes:
+      - var/lib/web/data
+    extra_hosts:
+      - id.netcarauction.com:10.5.0.200
+    environment:
+      - NEXTAUTH_SECRET=somethingreallyreallysecret
+      - NEXTAUTH_URL=http://app.netcarauction.com
+      - NEXTAUTH_URL_INTERNAL=http://web-app:3000
+      - API_URL=http://gateway-svc/
+      - IDENTITY_URL=http://id.netcarauction.com
+      - NEXT_PUBLIC_NOTIFY_URL=http://gateway-svc/notifications
+      - VIRTUAL_HOST=app.netcarauction.com
+      - VIRTUAL_PORT=3000
+    networks:
+      custom:
+
+  nginx-proxy:
+    image: nginxproxy/nginx-proxy
+    ports:
+      - 80:80
+      - 443:443
+    networks:
+      custom:
+    volumes:
+      - /var/run/docker.sock:/tmp/docker.sock:ro
+      - ./devcerts:/etc/nginx/certs
     
 volumes:
   pgdata: 
