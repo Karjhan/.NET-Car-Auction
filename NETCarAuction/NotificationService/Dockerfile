@@ -11,6 +11,8 @@ COPY /NETCarAuction/NotificationService/NotificationService.csproj src/Notificat
 COPY /NETCarAuction/BidService/BidService.csproj src/BidService/BidService.csproj
 COPY /NETCarAuction/Contracts/Contracts.csproj src/Contracts/Contracts.csproj
 COPY /NETCarAuction/IdentityService/IdentityService.csproj src/IdentityService/IdentityService.csproj
+COPY /NETCarAuction/AuctionServiceTests/AuctionServiceTests.csproj src/AuctionServiceTests/AuctionServiceTests.csproj
+COPY /NETCarAuction/AuctionServiceIntegrationTests/AuctionServiceIntegrationTests.csproj src/AuctionServiceIntegrationTests/AuctionServiceIntegrationTests.csproj
 
 # RESTORE PACKAGE DEPENDECIES
 RUN dotnet restore  src/AuctionService/AuctionService.csproj
