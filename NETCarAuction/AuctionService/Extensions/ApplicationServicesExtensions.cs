@@ -1,4 +1,5 @@
 ﻿using AuctionService.Consumers;
+using AuctionService.Data;
 using AuctionService.Data.Contexts;
 using MassTransit;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
@@ -11,6 +12,7 @@ public static class ApplicationServicesExtensions
     public static IServiceCollection AddApplicationServices(this IServiceCollection services,
         IConfiguration configuration)
     {
+        services.AddScoped<IAuctionRepository, AuctionRepository>();
         // Add AutoMapper for object mapping
         services.AddAutoMapper(AppDomain.CurrentDomain.GetAssemblies());
         // Add MassTransit service for RabbitMQ message broker
